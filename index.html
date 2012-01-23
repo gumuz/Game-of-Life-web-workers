@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game Of Life - Web workers</title>
+</head>
+<body>
+    <div id="container"></div>
+</body>
+<script type="text/javascript" src="src/js/game-of-life-worker-threads.js"></script>
+<script type="text/javascript">
+    var game = new GOLWT("container");
+    game.run();
+</script>
+</html>
