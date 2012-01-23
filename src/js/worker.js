@@ -5,14 +5,14 @@
     function GOLWTWorker() {
       self.onmessage = __bind(function(e) {
         var msg;
-        msg = e.data;
+        msg = JSON.parse(e.data);
         return this.work(msg["grid"], msg["index"], msg["step"]);
       }, this);
     }
     GOLWTWorker.prototype.work = function(grid, index, step) {
       var changed, key, nb_alive, nbkey, x, y, _i, _len, _ref;
       changed = {};
-      for (x = index; index <= 100 ? x < 100 : x > 100; x += step) {
+      for (x = index; index <= 50 ? x < 50 : x > 50; x += step) {
         for (y = 0; y < 50; y++) {
           key = "" + x + "_" + y;
           nb_alive = 0;
@@ -32,7 +32,7 @@
           }
         }
       }
-      return postMessage(changed);
+      return postMessage(JSON.stringify(changed));
     };
     return GOLWTWorker;
   })();

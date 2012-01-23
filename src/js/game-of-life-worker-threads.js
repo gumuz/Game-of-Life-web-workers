@@ -2,14 +2,17 @@
   var GOLWT;
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
   GOLWT = (function() {
-    function GOLWT(element_id) {
+    /*
+        Game of Life
+        */    function GOLWT(element_id) {
       var canvas, element, i, key, nbx, nby, nx, ny, value, worker, x, y, _ref;
       element = document.getElementById(element_id);
       canvas = document.createElement("canvas");
-      canvas.setAttribute("width", "500px");
+      canvas.setAttribute("width", "250px");
       canvas.setAttribute("height", "250px");
       element.appendChild(canvas);
       this.ctx = canvas.getContext("2d");
+      this.timestamp = new Date().getTime();
       this.jobs_running = 0;
       this.nr_of_workers = 1;
       this.workers = [];
@@ -21,7 +24,7 @@
         this.workers.push(worker);
       }
       this.grid = {};
-      for (x = 0; x < 100; x++) {
+      for (x = 0; x < 50; x++) {
         for (y = 0; y < 50; y++) {
           key = "" + x + "_" + y;
           value = parseInt(Math.random() * 10) % 2;
@@ -37,9 +40,9 @@
               }
               nbx = x + nx;
               if (nbx === -1) {
-                nbx = 99;
+                nbx = 49;
               }
-              if (nbx === 100) {
+              if (nbx === 50) {
                 nbx = 0;
               }
               nby = y + ny;
@@ -70,11 +73,12 @@
       return result;
     };
     GOLWT.prototype.send_message = function(worker_id, message_data) {
+      message_data = JSON.stringify(message_data);
       return this.workers[worker_id].postMessage(message_data);
     };
     GOLWT.prototype.receive_message = function(data) {
       var key, msg, value;
-      msg = data;
+      msg = JSON.parse(data);
       for (key in msg) {
         value = msg[key];
         this.tmp_grid[key]["value"] = value;
@@ -82,9 +86,13 @@
       return this.jobs_running--;
     };
     GOLWT.prototype.run = function() {
-      var cell, key, worker_id, x, y, _ref, _ref2, _ref3;
+      var cell, fps, key, now, worker_id, x, y, _ref, _ref2, _ref3;
       if (this.jobs_running === 0) {
-        this.ctx.clearRect(0, 0, 500, 250);
+        now = new Date().getTime();
+        fps = parseInt(1000 / (now - this.timestamp));
+        this.timestamp = now;
+        this.ctx.clearRect(0, 0, 250, 250);
+        this.ctx.fillStyle = "rgb(0,0,0)";
         this.grid = this.copy_grid(this.tmp_grid);
         _ref = this.grid;
         for (key in _ref) {
@@ -94,6 +102,12 @@
             this.ctx.fillRect(x * 5, y * 5, 5, 5);
           }
         }
+        this.ctx.fillStyle = "rgb(0,0,0)";
+        this.ctx.fillRect(10, 10, 40, 25);
+        this.ctx.fillStyle = "rgb(200,200,200)";
+        this.ctx.fillRect(13, 13, 34, 19);
+        this.ctx.strokeStyle = "rgb(0,0,0)";
+        this.ctx.strokeText(fps + " fps", 15, 25);
         this.jobs_running = this.nr_of_workers;
         for (worker_id = 0, _ref3 = this.nr_of_workers; 0 <= _ref3 ? worker_id < _ref3 : worker_id > _ref3; 0 <= _ref3 ? worker_id++ : worker_id--) {
           this.send_message(worker_id, {
